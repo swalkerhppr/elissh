@@ -1,13 +1,14 @@
 defmodule Elissh.Console do
   use GenServer
+  @command_char Application.get_env(:elissh, :command_char)
 
   @moduledoc """
-    Anything without a ! is added as a commmand to run
-    !run_on <host|group> - add a host or group to the hosts to run on
-    !user <username>     - set the remote username
-    !password <pass>     - set the password for the remote user
-    !connect             - connect to hosts to run on
-    !send                - run commands on hosts
+    Anything without a #{@command_char} is added as a commmand to run
+    #{@command_char}run_on <host|group> - add a host or group to the hosts to run on
+    #{@command_char}user <username>     - set the remote username
+    #{@command_char}password <pass>     - set the password for the remote user
+    #{@command_char}connect             - connect to hosts to run on
+    #{@command_char}send                - run commands on hosts
   """
 
   def start_link do
