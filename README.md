@@ -100,6 +100,20 @@ eli>!connect
 eli>!send
 ```
 
+You may automate the running of interactive mode by running `eli -is myscript.elic`.
+Each line is parsed as a line in interactive mode.
+The following would produce the same results as the interactive session above:
+```
+echo A user was here! >> trace
+echo And here >> trace
+!run_on lab
+!run_on dns
+!user auser
+!password mypassword
+!connect
+!send
+```
+
 Building
 ========
 
