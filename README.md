@@ -27,41 +27,41 @@ Usage
 To run a command on all hosts defined in the `lab` group run:
 
 ```
-  elissh -m 'mkdir adir' -a lab 
+  eli -m 'mkdir adir' -a lab 
 ```
 
 To run a command on one host defined in the `lab` group run:
 
 ```
-  elissh -m 'mkdir adir' lab 
+  eli -m 'mkdir adir' lab 
 ```
 
 Or just the first instance of host named `myserver`:
 
 ```
-  elissh -m 'mkdir adir' myserver
+  eli -m 'mkdir adir' myserver
 ```
 
 Or all instances of hosts named `myserver`:
 
 ```
-  elissh -m 'mkdir adir' -a myserver
+  eli -m 'mkdir adir' -a myserver
 ```
 
 You may also supply a username and password to connect (must be the same for all hosts)
 
 ```
-  elissh -m 'mkdir adir' -u auser -p mypass lab
+  eli -m 'mkdir adir' -u auser -p mypass lab
 
 ```
 
 If you don't supply a username with the -u flag, it assumes the user that you are running as.
 If you don't supply a password with the -p flag, it asssumes that you are using ssh keys.
 
-Use `elissh -h` for more options
+Use `eli -h` for more options
 
 Building
 ========
 
-Install elixir and clone this repository. Cd to the repo and run `mix get.deps` then `mix escript.build`. This should create the elissh executable in the same directory.
+Install elixir and clone this repository. Cd to the repo and run `mix get.deps` then `mix escript.build`. This should create the `eli` executable in the same directory.
 

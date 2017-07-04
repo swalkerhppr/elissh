@@ -7,7 +7,7 @@ defmodule Elissh.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     escript: [main_module: Elissh],
+     escript: [main_module: Elissh, name: :eli],
      deps: deps]
   end
 
