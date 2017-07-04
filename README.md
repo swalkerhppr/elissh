@@ -58,7 +58,47 @@ You may also supply a username and password to connect (must be the same for all
 If you don't supply a username with the -u flag, it assumes the user that you are running as.
 If you don't supply a password with the -p flag, it asssumes that you are using ssh keys.
 
+You may also access the name and address that you set on the particular host by using the #{name} and #{address} replacement variables:
+
+```
+  eli -m 'mkdir #{name} && touch #{name}/#{address}' -a lab
+```
+This would create  the  myserver/192.168.100.2 on myserver and web/192.168.100.3 on web. (see example config above)
+
 Use `eli -h` for more options
+
+Interactive Console
+===================
+
+To enter an interactive console run `eli -i`. The console allows you to form sets of hosts to run multiple commands on.
+
+In the interactive console you must set the configuration using commands preceeded by '!'. The available commands are:
+```
+    !run_on <host|group> - add a host or group to the hosts to run on
+    !reset               - reset run on hosts
+    !user <username>     - set the remote username
+    !password <pass>     - set the password for the remote user
+    !connect             - connect to hosts to run on
+    !send                - run commands on hosts
+    !help                - show help
+    !info                - display the map of set configurations
+```
+
+Any command that is not preceded by '!' is assumed to be a command to send to hosts.
+
+You must run !connect before !send.
+
+An example interactive session would be like so:
+```
+eli>echo A user was here! >> trace
+eli>echo And here >> trace
+eli>!run_on lab
+eli>!run_on dns
+eli>!user auser
+eli>!password mypassword
+eli>!connect
+eli>!send
+```
 
 Building
 ========

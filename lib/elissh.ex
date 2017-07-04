@@ -3,11 +3,12 @@ defmodule Elissh do
   @moduledoc """
     ./elissh -[cvmag] [host|group]
       A Utility to send a command to multiple hosts
-      -c, --config    - config file
-      -v, --verbose   - verbose mode
-      -m, --command   - command to run
-      -a, --all       - run command on all hosts(only the first if not specified)
-      -g, --group     - specify a group instead of a host (specify -a to run on all in group)
+      -c, --config      - config file
+      -m, --command     - command to run
+      -a, --all         - run command on all hosts(only the first if not specified)
+      -u, --user        - remote user to run as on hosts
+      -p, --password    - remote user password, if not supplied it assumes you are using keys
+      -i, --interactive - interactive mode
   """
 
   def main(args) do
@@ -28,10 +29,11 @@ defmodule Elissh do
   def console(%{config: config_file, password: pass, user: user}, start \\ false) do
     if start do
       start_registries(config_file)
+      Elissh.Console.start_link()
     end
-    case Regex.named_captures(~r/(^<(?<intern>.+)$|^(?<extern>.+)$)/, IO.gets ">" ) do
-      %{"intern" => con_com, "extern" => ""}  -> IO.puts "Con Com #{con_com}"
-      %{"intern" => "", "extern" => send_com} -> IO.puts "Send Com #{send_com}"
+    case Regex.named_captures(~r/(^!(?<intern>.+)$|^(?<extern>.+)$)/, IO.gets "eli>" ) do
+      %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
+      %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
     end
     console(%{config: config_file, password: pass, user: user})
   end
