@@ -1,0 +1,7 @@
+!user swalker
+!run_on group1
+!connect
+echo test1 >> script_test
+echo test2 >> script_test
+
+!send

@@ -28,6 +28,7 @@ defmodule Elissh.Console do
       {"send"}           -> :send
       {"info"}           -> :info
       {"help"}           -> :help
+      {"exit"}           -> :exit
       _                  -> :help
     end
   end
@@ -78,8 +79,12 @@ defmodule Elissh.Console do
 
   def handle_call({:console, :send}, _from, map) do
     {:reply,
-      Enum.map(map[:specs], fn spec -> Enum.each(Enum.reverse(map[:cmds]), &Elissh.ConnectionRegistry.run(spec, &1)) end), 
+      Enum.map(map[:specs], fn spec -> Enum.map(Enum.reverse(map[:cmds]), &Elissh.ConnectionRegistry.run(spec, &1)) end), 
       %{map | cmds: []}
     }
+  end
+
+  def handle_call({:console, :exit}, _from, _) do
+    System.halt(0)
   end
 end

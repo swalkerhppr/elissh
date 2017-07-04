@@ -1,7 +1,9 @@
 defmodule Elissh do
 
+  @command_char Application.get_env(:elissh, :command_char)
+
   @moduledoc """
-    ./elissh -[cvmag] [host|group]
+    ./elissh [options] [host|group]
       A Utility to send a command to multiple hosts
       -c, --config      - config file
       -m, --command     - command to run
@@ -9,6 +11,7 @@ defmodule Elissh do
       -u, --user        - remote user to run as on hosts
       -p, --password    - remote user password, if not supplied it assumes you are using keys
       -i, --interactive - interactive mode
+      -s, --script      - interactive mode script to run
   """
 
   def main(args) do
@@ -23,19 +26,28 @@ defmodule Elissh do
   def push({%{config: config_file, cmd: cmd, all: all, password: pass, user: user}, spec}) do
     start_registries(config_file)
     Elissh.ConnectionRegistry.set_user({user, pass})
-    Elissh.CommandRunner.run_cmd({:spec, spec}, cmd, all)
+    IO.puts inspect Elissh.CommandRunner.run_cmd({:spec, spec}, cmd, all)
   end
 
-  def console(%{config: config_file, password: pass, user: user}, start \\ false) do
+  def console(%{config: config_file, password: pass, user: user, script: script}, start \\ false) do
     if start do
       start_registries(config_file)
       Elissh.Console.start_link()
+      if script, do: Elissh.FileReader.start_link(script)
     end
-    case Regex.named_captures(~r/(^!(?<intern>.+)$|^(?<extern>.+)$)/, IO.gets "eli>" ) do
-      %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
-      %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
+    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, prompt_or_get_script(script)) do
+      %{"intern" => con_com, "extern" => ""}  -> IO.puts(inspect Elissh.Console.console_command(con_com))
+      %{"intern" => "", "extern" => send_com} -> IO.puts(inspect Elissh.Console.send_command(send_com))
+      nil -> nil
     end
-    console(%{config: config_file, password: pass, user: user})
+    console(%{config: config_file, password: pass, user: user, script: script})
+  end
+
+  def prompt_or_get_script(script) do
+    case script do
+      false -> IO.gets "eli>"
+      _ -> Elissh.FileReader.next()
+    end
   end
 
   def start_registries(config_file) do
@@ -52,6 +64,7 @@ defmodule Elissh do
       password: nil,
       user: System.get_env("USERNAME"),
       interactive: false,
+      script: false
     }
     {options, spec, _} = OptionParser.parse(args,
       switches: [
@@ -61,7 +74,8 @@ defmodule Elissh do
         all: :boolean,
         password: :string,
         user: :string,
-        interactive: :boolean
+        interactive: :boolean,
+        script: :string,
       ],
       aliases: [
         c: :config,
@@ -70,7 +84,8 @@ defmodule Elissh do
         a: :all,
         p: :password,
         u: :user,
-        i: :interactive
+        i: :interactive,
+        s: :script
       ],
     )
     result_conf = Enum.into(options, default_opts)

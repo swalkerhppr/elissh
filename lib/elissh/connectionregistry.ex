@@ -25,7 +25,7 @@ defmodule Elissh.ConnectionRegistry do
     Connect to multiple hosts
   """
   def connect({:multiple, hosts}) do
-    Enum.each hosts, &GenServer.call(Connections, {:connect, &1}) 
+    Enum.map hosts, &GenServer.call(Connections, {:connect, &1}) 
   end
   
   @doc """
@@ -39,7 +39,7 @@ defmodule Elissh.ConnectionRegistry do
     Run a command on multiple hosts
   """
   def run({:multiple, hosts}, cmd) do
-    Enum.each hosts, &GenServer.call(Connections, {:run, {&1, cmd}})
+    Enum.map hosts, &GenServer.call(Connections, {:run, {&1, cmd}})
   end
 
   def init(%{}) do
@@ -63,9 +63,14 @@ defmodule Elissh.ConnectionRegistry do
 
   def handle_call({:run, {{hostname, ipaddress}, cmd}}, _from, map) do
     substcmd = String.replace(cmd, ~R/#{name}/, hostname) |> String.replace(~R/#{address}/, ipaddress) 
-    case Map.fetch(map, ipaddress) do
-      {:ok, conn} -> {:reply, SSHEx.run(conn, substcmd), map}
-      :error -> {:reply, {:error, "Not connected"}, map}
+    response = case Map.fetch(map, ipaddress) do
+      {:ok, conn} -> SSHEx.run(conn, substcmd)
+      :error -> {:error, "Not connected"}
+    end
+    case response do
+      {:ok, message, 0} -> {:reply, {hostname, {:ok, message}}, map} 
+      {:ok, message, status} -> {:reply, {hostname, {:error, message, :status, status}}, map} 
+      {:error, message} -> {:reply, {hostname, {:error, message}}, map} 
     end
   end
 end
