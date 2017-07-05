@@ -54,12 +54,8 @@ defmodule Elissh do
   end
 
   def start_registries(config_file, facts_file) do
-    {:ok, yaml_config} = File.read(config_file)
-    {:ok, facts_config} = File.read(facts_file)
-    config = YamlElixir.read_from_string yaml_config
-    facts = YamlElixir.read_from_string facts_config
-    Elissh.ConfigRegistry.start_link(config)
-    Elissh.FactRegistry.start_link(facts)
+    config_file |> File.read! |> YamlElixir.read_from_string |> Elissh.ConfigRegistry.start_link
+    facts_file |> File.read! |> YamlElixir.read_from_string |> Elissh.FactRegistry.start_link
     Elissh.ConnectionRegistry.start_link()
   end
 
@@ -89,8 +85,8 @@ defmodule Elissh do
         f: :facts,
       ],
     )
-    result_conf = Enum.into(options, default_opts)
-    case result_conf do
+
+    case result_conf = Enum.into(options, default_opts) do
       %{help: true}       -> :help
       %{interactive: true} -> result_conf
       %{cmd: _}           -> {result_conf, hd(spec)}

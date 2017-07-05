@@ -2,6 +2,7 @@ defmodule Elissh.ConnectionRegistryTest do
   use ExUnit.Case
   
   setup do
+    GenServer.start_link(MockFacts, %{}, name: Facts)
     {:ok, _ } = Elissh.ConnectionRegistry.start_link()
     :ok
   end
@@ -32,4 +33,9 @@ defmodule Elissh.ConnectionRegistryTest do
     Elissh.ConnectionRegistry.connect({:multiple, [{"test1", "127.0.0.1"}, {"test2", "127.0.0.2"}]})
     assert Elissh.ConnectionRegistry.run({:multiple, [{"test1", "127.0.0.1"}, {"test2", "127.0.0.2"}]}, "echo hello") == :ok
   end
+end
+
+defmodule MockFacts do
+  def init(any), do: {:ok, any}
+  def handle_call(_opts, _from, map), do: {:reply, map, map}
 end
