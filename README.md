@@ -114,6 +114,79 @@ echo And here >> trace
 !send
 ```
 
+Facts
+==========
+
+== Static facts
+
+Facts can be defined in a yaml file and the file can be specified with -f flag.
+The default facts file is `./facts.yml`
+The format for the fact file is specified by hostname.
+If a host had the same name, then it will pull from the same fact map.
+An example facts.yml file:
+```
+---
+  global_facts:
+    os: "ubuntu"
+  myserver: 
+    default_dir:  "/tmp/data"
+  web:
+    default_dir:  "/home/web"
+  dns:
+    default_dir:  "/home/dns"
+  db:
+    default_dir:  "/etc/db"
+```
+
+These facts can be used in commands by using #{fact_name} in the command.
+Note that if you are running a command with a fact, each host record needs to have a value for that fact or the fact should be located under the `global_facts` portion of the yaml.
+Global facts will override any other facts.
+An example of using facts in a command:
+```
+  # default_dir would evaluate to the fact that is set for each of the hosts that it is running on
+  eli -m "cd #{default_dir} && echo #{os} > os_info" -a lab
+```
+
+== Dynamic facts
+
+You may capture the output of a command and turn it into a fact by using #{>regex}.
+This uses elixir regex functions to match the output of a command and extract the value that you want.
+You will need to use a 'named capture' to specify the name of the fact that you want.
+For example running the command `echo my name is steve #{>my name is (?<my_name>\w+)}` would set the my_name fact to steve.
+In subsequent commands in the same interactive session you could run `echo "Hello, #{my_name}!" > a_file` to output Hello, steve! to a_file.  
+A couple notes:
+
+  - Only one output capture is allowed per command
+
+  - The fact is computed AFTER the operation has finished (you can't capture and use in the same line)
+
+  - Everything between the ${> and } are considered to be a regex.
+
+  - Dynamic facts are not saved between sessions. Their use should be limited to interactive mode and interactive scripts.
+
+  - Dynamic facts are computed per host. If the output is different on different hosts, the fact will reflect the difference.
+
+For example:
+```
+  eli -i
+  eli>!user auser
+  eli>!run_on lab
+  eli>!connect
+  eli>cat /proc/meminfo #{>MemTotal:\s+(?<memory>.*)}
+  eli>echo #{memory} > my_mem
+  eli>!send 
+```
+would retrieve the MemTotal from /proc/meminfo and put the value in a file named my_mem on each of the lab hosts
+
+== name and address
+
+The name and address values hold the information stored in the hosts.yml file. They can be retrieved like static facts:
+```
+  eli -m "echo my name is #{name} and my address is #{address}" dns
+```
+
+Take care not to override these values because any value that is set with the same name will overwrite them.
+
 Building
 ========
 
