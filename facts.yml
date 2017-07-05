@@ -1,0 +1,11 @@
+---
+  local1:
+    test_fact: "Hello from facts local1"
+  local2:
+    test_fact: "Hello from facts local2"
+  local3:
+    test_fact: "Hello from facts local3"
+  local4:
+    test_fact: "Hello from facts local4"
+  local5:
+    test_fact: "Hello from facts local5"

@@ -6,6 +6,7 @@ defmodule Elissh do
     ./elissh [options] [host|group]
       A Utility to send a command to multiple hosts
       -c, --config      - config file
+      -f, --facts       - facts file
       -m, --command     - command to run
       -a, --all         - run command on all hosts(only the first if not specified)
       -u, --user        - remote user to run as on hosts
@@ -23,15 +24,15 @@ defmodule Elissh do
     end
   end
 
-  def push({%{config: config_file, cmd: cmd, all: all, password: pass, user: user}, spec}) do
-    start_registries(config_file)
+  def push({%{config: config_file, facts: facts_file, cmd: cmd, all: all, password: pass, user: user}, spec}) do
+    start_registries(config_file, facts_file)
     Elissh.ConnectionRegistry.set_user({user, pass})
     IO.puts inspect Elissh.CommandRunner.run_cmd({:spec, spec}, cmd, all)
   end
 
-  def console(%{config: config_file, password: pass, user: user, script: script}, start \\ false) do
+  def console(%{config: config_file, facts: facts_file, password: pass, user: user, script: script}, start \\ false) do
     if start do
-      start_registries(config_file)
+      start_registries(config_file, facts_file)
       Elissh.Console.start_link()
       if script, do: Elissh.FileReader.start_link(script)
     end
@@ -40,7 +41,7 @@ defmodule Elissh do
       %{"intern" => "", "extern" => send_com} -> IO.puts(inspect Elissh.Console.send_command(send_com))
       nil -> nil
     end
-    console(%{config: config_file, password: pass, user: user, script: script})
+    console(%{config: config_file, facts: facts_file, password: pass, user: user, script: script})
   end
 
   def prompt_or_get_script(script) do
@@ -50,16 +51,20 @@ defmodule Elissh do
     end
   end
 
-  def start_registries(config_file) do
+  def start_registries(config_file, facts_file) do
     {:ok, yaml_config} = File.read(config_file)
+    {:ok, facts_config} = File.read(facts_file)
     config = YamlElixir.read_from_string yaml_config
+    facts = YamlElixir.read_from_string facts_config
     Elissh.ConfigRegistry.start_link(config)
+    Elissh.FactRegistry.start_link(facts)
     Elissh.ConnectionRegistry.start_link()
   end
 
   def parse_args(args) do
     default_opts = %{
       config:  "./hosts.yml",
+      facts:  "./facts.yml",
       all: false,
       password: nil,
       user: System.get_env("USERNAME"),
@@ -76,6 +81,7 @@ defmodule Elissh do
         user: :string,
         interactive: :boolean,
         script: :string,
+        facts: :string,
       ],
       aliases: [
         c: :config,
@@ -85,7 +91,8 @@ defmodule Elissh do
         p: :password,
         u: :user,
         i: :interactive,
-        s: :script
+        s: :script,
+        f: :facts,
       ],
     )
     result_conf = Enum.into(options, default_opts)

@@ -50,7 +50,7 @@ defmodule Elissh.ConnectionRegistry do
     {:reply, :ok, Map.merge(map, %{user: user, password: password})}
   end 
 
-  def handle_call({:connect, {hostname, ipaddress}}, _from, map) do
+  def handle_call({:connect, {_, ipaddress}}, _from, map) do
     args = case {ipaddress, map[:user], map[:password]} do
       {ip, user, nil} ->  [ip: ip, user: user, ssh_module: @sshmodule]
       {ip, user, pass} ->  [ip: ip , user: user, password: pass, ssh_module: @sshmodule]
@@ -62,13 +62,13 @@ defmodule Elissh.ConnectionRegistry do
   end
 
   def handle_call({:run, {{hostname, ipaddress}, cmd}}, _from, map) do
-    substcmd = String.replace(cmd, ~R/#{name}/, hostname) |> String.replace(~R/#{address}/, ipaddress) 
+    computed_cmd = Elissh.FactRegistry.replace_facts({hostname, ipaddress}, cmd)
     response = case Map.fetch(map, ipaddress) do
-      {:ok, conn} -> SSHEx.run(conn, substcmd)
+      {:ok, conn} -> SSHEx.run(conn, computed_cmd)
       :error -> {:error, "Not connected"}
     end
     case response do
-      {:ok, message, 0} -> {:reply, {hostname, {:ok, message}}, map} 
+      {:ok, message, 0} -> {:reply, {hostname, {:ok, Elissh.FactRegistry.extract_facts({hostname, ipaddress}, cmd, message)}}, map} 
       {:ok, message, status} -> {:reply, {hostname, {:error, message, :status, status}}, map} 
       {:error, message} -> {:reply, {hostname, {:error, message}}, map} 
     end

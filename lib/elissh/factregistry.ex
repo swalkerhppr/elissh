@@ -1,8 +1,8 @@
 defmodule Elissh.FactRegistry do
   use GenServer
 
-  def start_link do
-    GenServer.start_link(__MODULE__, %{global_facts: %{}}, name: Facts)
+  def start_link(init_facts) do
+    GenServer.start_link(__MODULE__, Map.merge(%{global_facts: %{}}, init_facts), name: Facts)
   end
 
   def put(host, {fact, value}) do
@@ -28,6 +28,7 @@ defmodule Elissh.FactRegistry do
         put({host, address}, List.first(Map.to_list(Regex.named_captures(~r/#{cap_regex}/, output))))
       _  -> :ok
     end
+    output
   end
 
   def handle_call({:put, {host, address}, fact, value}, _from, map) do
