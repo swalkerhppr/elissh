@@ -24,24 +24,26 @@ defmodule Elissh do
     end
   end
 
-  def push({%{config: config_file, facts: facts_file, cmd: cmd, all: all, password: pass, user: user}, spec}) do
-    start_registries(config_file, facts_file)
-    Elissh.ConnectionRegistry.set_user({user, pass})
-    IO.puts inspect Elissh.CommandRunner.run_cmd({:spec, spec}, cmd, all)
+  def push({config = %DefaultConfig{}, spec}) do
+    start_registries(config.config_file, config.facts_file)
+    Elissh.ConnectionRegistry.set_user({config.user, config.pass})
+    Elissh.CommandRunner.run_cmd({:spec, spec}, config.cmd, config.all) |> inspect |> IO.puts
   end
 
-  def console(%{config: config_file, facts: facts_file, password: pass, user: user, script: script}, start \\ false) do
+  def console(config = %DefaultConfig{}, start \\ false) do
     if start do
-      start_registries(config_file, facts_file)
+      start_registries(config.config_file, config.facts_file)
       Elissh.Console.start_link()
-      if script, do: Elissh.FileReader.start_link(script)
+      if config.script, do: Elissh.FileReader.start_link(config.script)
     end
-    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, prompt_or_get_script(script)) do
-      %{"intern" => con_com, "extern" => ""}  -> IO.puts(inspect Elissh.Console.console_command(con_com))
-      %{"intern" => "", "extern" => send_com} -> IO.puts(inspect Elissh.Console.send_command(send_com))
+
+    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, prompt_or_get_script(config.script)) do
+      %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
+      %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
       nil -> nil
-    end
-    console(%{config: config_file, facts: facts_file, password: pass, user: user, script: script})
+    end |> inspect |> IO.puts
+
+    console(config)
   end
 
   def prompt_or_get_script(script) do
@@ -62,15 +64,7 @@ defmodule Elissh do
   end
 
   def parse_args(args) do
-    default_opts = %{
-      config:  "./hosts.yml",
-      facts:  "./facts.yml",
-      all: false,
-      password: nil,
-      user: System.get_env("USERNAME"),
-      interactive: false,
-      script: false
-    }
+    default_opts = %DefaultConfig{}
     {options, spec, _} = OptionParser.parse(args,
       switches: [
         config: :string,
