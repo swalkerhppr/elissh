@@ -18,7 +18,7 @@ defmodule Elissh.ConnectionRegistryTest do
 
   test "connecting to multiple hosts" do
     Elissh.ConnectionRegistry.set_user({"user", "password"})
-    assert Elissh.ConnectionRegistry.connect({:multiple, [{"test1", "127.0.0.1"}, {"test2", "127.0.0.2"}]}) == :ok
+    assert Elissh.ConnectionRegistry.connect({:multiple, [{"test1", "127.0.0.1"}, {"test2", "127.0.0.2"}]}) == [:ok, :ok]
   end
 
   test "running on a single host" do
