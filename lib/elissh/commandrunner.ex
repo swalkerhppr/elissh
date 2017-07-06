@@ -8,14 +8,12 @@ defmodule Elissh.CommandRunner do
       {:single, host} -> host
     end
     Elissh.ConnectionRegistry.connect({:single, host})
-    task = Task.async( fn -> Elissh.ConnectionRegistry.run({:single, host}, cmd) end )
-    Task.await(task)
+    Elissh.ConnectionRegistry.run({:single, host}, cmd)
   end 
 
   def run_cmd(lookup, cmd, true) do
     hosts = Elissh.ConfigRegistry.get(lookup)
     Elissh.ConnectionRegistry.connect(hosts)
-    task = Task.async( fn -> Elissh.ConnectionRegistry.run(hosts, cmd) end )
-    Task.await(task)
+    Elissh.ConnectionRegistry.run(hosts, cmd)
   end 
 end
