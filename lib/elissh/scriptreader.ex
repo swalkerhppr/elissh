@@ -1,4 +1,4 @@
-defmodule Elissh.FileReader do
+defmodule Elissh.ScriptReader do
   use GenServer
 
   def start_link(script) do

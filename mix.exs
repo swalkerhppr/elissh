@@ -7,7 +7,7 @@ defmodule Elissh.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     escript: [main_module: Elissh, name: :eli],
+     escript: [main_module: Elissh.Runner, name: :eli],
      deps: deps]
   end
 
@@ -15,7 +15,10 @@ defmodule Elissh.Mixfile do
   #
   # Type `mix help compile.app` for more information
   def application do
-    [applications: [:logger, :ssh, :yaml_elixir]]
+    [
+      extra_applications: [:logger, :ssh, :yaml_elixir],
+      mod: {Elissh, []}
+    ]
   end
 
   # Dependencies can be Hex packages:

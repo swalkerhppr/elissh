@@ -3,7 +3,6 @@ defmodule Elissh.ConnectionRegistryTest do
   
   setup do
     GenServer.start_link(MockFacts, %{}, name: Facts)
-    {:ok, _ } = Elissh.ConnectionRegistry.start_link()
     :ok
   end
 
