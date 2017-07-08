@@ -1,7 +1,7 @@
 defmodule Elissh.Console do
   use GenServer
 
-  defstruct  cmds: [], specs: [], user: nil, pass: nil
+  defstruct cmds: [], specs: [], user: nil, pass: nil
 
   @command_char Application.get_env(:elissh, :command_char)
 
@@ -15,7 +15,9 @@ defmodule Elissh.Console do
   """
 
   @doc "Start the console"
-  def start_link, do: GenServer.start_link(__MODULE__, %Elissh.Console{}, name: Console)
+  def start_link do
+    GenServer.start_link(__MODULE__, %Elissh.Console{}, name: Console)
+  end
 
   @doc "Apply a console command to change the console state"
   def console_command(command), do: GenServer.call(Console, {:console, parse_console_command(command)})
@@ -42,7 +44,9 @@ defmodule Elissh.Console do
   end
 
 
-  def init(map), do: {:ok, map}
+  def init(map) do
+    {:ok, map}
+  end
 
   def handle_call({:console, {:user, user}}, _from, map), do: {:reply, :ok, %{map | user: user}}
   def handle_call({:console, {:pass, password}}, _from, map), do: {:reply, :ok, %{map | pass: password}}
