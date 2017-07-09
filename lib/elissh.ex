@@ -2,10 +2,13 @@ defmodule Elissh do
   use Application
   import Supervisor.Spec
 
+  def start(), do: :ok
+
   def start(:normal, _) do
     children = [
       worker(Elissh.ConnectionRegistry, []),
       worker(Elissh.Console, []),
+      worker(IOTty, []),
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Elissh.Supervisor)
@@ -23,5 +26,9 @@ defmodule Elissh do
 
   def start_script_reader(supervisor, script) do
     Supervisor.start_child(supervisor, worker(Elissh.ScriptReader, [script]))
+  end
+
+  def handle_call({_port, {:data, d}}, _from, state) do
+    IO.puts(d)
   end
 end

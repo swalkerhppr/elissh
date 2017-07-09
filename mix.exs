@@ -7,7 +7,7 @@ defmodule Elissh.Mixfile do
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     escript: [main_module: Elissh.Runner, name: :eli],
+     escript: [main_module: Elissh.Runner, name: :eli, emu_args: "-elixir ansi_enabled true -noinput"],
      deps: deps]
   end
 
@@ -31,6 +31,6 @@ defmodule Elissh.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:sshex, "~> 2.2"}, {:yaml_elixir, "~> 1.3"}]
+    [{:sshex, "~> 2.2"}, {:yaml_elixir, "~> 1.3"},{:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git"}]
   end
 end

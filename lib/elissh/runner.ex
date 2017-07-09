@@ -35,8 +35,9 @@ defmodule Elissh.Runner do
       start_registries(config.config_file, config.facts_file)
       if config.script, do: Elissh.start_script_reader(Elissh.Supervisor, config.script)
     end
-
-    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, prompt_or_get_script(config.script)) do
+    input = prompt_or_get_script(config.script)
+    IO.puts("GOT #{input}")
+    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, input) do
       %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
       %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
       nil -> nil
@@ -47,7 +48,7 @@ defmodule Elissh.Runner do
 
   defp prompt_or_get_script(script) do
     case script do
-      false -> IO.gets "eli>"
+      false -> IOTty.gets "eli>"
       _ -> Elissh.ScriptReader.next()
     end
   end
