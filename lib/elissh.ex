@@ -8,6 +8,7 @@ defmodule Elissh do
     children = [
       worker(Elissh.ConnectionRegistry, []),
       worker(Elissh.Console, []),
+      worker(IOTty, []),
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Elissh.Supervisor)

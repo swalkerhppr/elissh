@@ -48,7 +48,7 @@ defmodule Elissh.Runner do
 
   defp prompt_or_get_script(script) do
     case script do
-      false -> Elissh.ANSI.gets "eli>"
+      false -> IOTty.gets "eli>"
       _ -> Elissh.ScriptReader.next()
     end
   end
