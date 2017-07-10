@@ -54,12 +54,12 @@ defmodule Elissh.Console do
   def handle_call({:console, :exit}, _from, _), do: System.halt(0)
 
   def handle_call({:console, :help}, _from, map) do
-    IO.puts @moduledoc
+    IOTty.puts @moduledoc
     {:reply, :ok, map}
   end
 
   def handle_call({:console, :info}, _from, map) do
-    map |> inspect |> IO.puts
+    map |> inspect |> IOTty.puts
     {:reply, :ok, map}
   end
 

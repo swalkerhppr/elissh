@@ -36,12 +36,11 @@ defmodule Elissh.Runner do
       if config.script, do: Elissh.start_script_reader(Elissh.Supervisor, config.script)
     end
     input = prompt_or_get_script(config.script)
-    IO.puts("GOT #{input}")
     case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, input) do
       %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
       %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
       nil -> nil
-    end |> inspect |> IO.puts
+    end |> inspect |> IOTty.puts
 
     console(config)
   end

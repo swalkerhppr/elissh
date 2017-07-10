@@ -31,6 +31,6 @@ defmodule Elissh.Mixfile do
   #
   # Type `mix help deps` for more examples and options
   defp deps do
-    [{:sshex, "~> 2.2"}, {:yaml_elixir, "~> 1.3"},{:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git"}]
+    [{:sshex, "~> 2.2"}, {:yaml_elixir, "~> 1.3"},{:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git", tag: "v0.1.1"}]
   end
 end
