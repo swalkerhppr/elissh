@@ -11,9 +11,6 @@ defmodule Elissh.Mixfile do
      deps: deps]
   end
 
-  # Configuration for the OTP application
-  #
-  # Type `mix help compile.app` for more information
   def application do
     [
       extra_applications: [:logger, :ssh, :yaml_elixir],
@@ -21,16 +18,11 @@ defmodule Elissh.Mixfile do
     ]
   end
 
-  # Dependencies can be Hex packages:
-  #
-  #   {:mydep, "~> 0.3.0"}
-  #
-  # Or git/path repositories:
-  #
-  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
-  #
-  # Type `mix help deps` for more examples and options
   defp deps do
-    [{:sshex, "~> 2.2"}, {:yaml_elixir, "~> 1.3"},{:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git", tag: "v0.1.1"}]
+    [
+      {:sshex, "~> 2.2"},
+      {:yaml_elixir, "~> 1.3"},
+      {:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git", tag: "v1.0.0"}
+    ]
   end
 end

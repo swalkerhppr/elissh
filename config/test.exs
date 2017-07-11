@@ -5,6 +5,7 @@ config :logger,
   compile_time_purge_level: :debug
 
 config :elissh, :sshmodule, AllOKMock
+config :elissh, :io_tty_config, :disable
 
 
 defmodule AllOKMock do

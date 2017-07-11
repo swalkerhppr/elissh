@@ -2,13 +2,15 @@ defmodule Elissh do
   use Application
   import Supervisor.Spec
 
+  @io_config Application.get_env(:elissh, :io_tty_config)
+
   def start(), do: :ok
 
   def start(:normal, _) do
     children = [
       worker(Elissh.ConnectionRegistry, []),
       worker(Elissh.Console, []),
-      worker(IOTty, []),
+      worker(IOTty, [@io_config]),
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Elissh.Supervisor)
