@@ -22,7 +22,7 @@ defmodule Elissh.Mixfile do
     [
       {:sshex, "~> 2.2"},
       {:yaml_elixir, "~> 1.3"},
-      {:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git", tag: "v1.0.0"}
+      {:io_tty, git: "https://github.com/swalker90/elixir-io_tty.git", tag: "v1.0.1"}
     ]
   end
 end

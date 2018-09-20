@@ -48,9 +48,9 @@ defmodule Elissh.Console do
     {:ok, map}
   end
 
-  def handle_call({:console, {:user, user}}, _from, map), do: {:reply, :ok, %{map | user: user}}
-  def handle_call({:console, {:pass, password}}, _from, map), do: {:reply, :ok, %{map | pass: password}}
-  def handle_call({:console, {:spec, :reset}}, _from, map), do: {:reply, :ok, %{map| specs: []}}
+  def handle_call({:console, {:user, user}}, _from, map), do: {:reply, {:ok_config, {:user, user}}, %{map | user: user}}
+  def handle_call({:console, {:pass, password}}, _from, map), do: {:reply, {:ok_config, {:pass, password}}, %{map | pass: password}}
+  def handle_call({:console, {:spec, :reset}}, _from, map), do: {:reply, {:ok_config, {:spec, :empty}}, %{map| specs: []}}
   def handle_call({:console, :exit}, _from, _), do: System.halt(0)
 
   def handle_call({:console, :help}, _from, map) do
@@ -65,7 +65,7 @@ defmodule Elissh.Console do
 
   def handle_call({:console, {:spec, hostspec}}, _from, map) do
     specs = Elissh.ConfigRegistry.get({:spec, hostspec})
-    {:reply, :ok, Map.update!(map, :specs, &(&1++[specs])) }
+    {:reply, {:ok_config, {:spec, (inspect specs)}}, Map.update!(map, :specs, &(&1++[specs])) }
   end
 
   def handle_call({:console, :connect}, _from, map = %{user: user, pass: pass, specs: specs}) do
@@ -80,6 +80,13 @@ defmodule Elissh.Console do
     }
   end
 
-  def handle_call({:add, command}, _from, map), do: {:reply, :ok, Map.update!(map, :cmds, &([command | &1])) }
+  def handle_call({:add, command}, _from, map) do 
+    cond do 
+      Regex.match?(~R/.*#{>.*/, command) ->
+        {:reply, :ok_disconnect, Map.update!(map, :cmds, &([command | &1])) }
+      true ->
+        {:reply, :ok_cmd, Map.update!(map, :cmds, &([command | &1])) }
+    end
+  end
 
 end

@@ -36,12 +36,18 @@ defmodule Elissh.Runner do
       if config.script, do: Elissh.start_script_reader(Elissh.Supervisor, config.script)
     end
     input = prompt_or_get_script(config.script)
-    case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, input) do
+    status = case Regex.named_captures(~r/(^#{@command_char}(?<intern>.+)$|^(?<extern>.+)$)/, input) do
       %{"intern" => con_com, "extern" => ""}  -> Elissh.Console.console_command(con_com)
       %{"intern" => "", "extern" => send_com} -> Elissh.Console.send_command(send_com)
       nil -> nil
-    end |> inspect |> IOTty.puts
-
+    end
+    case status do
+      :ok_disconnect -> IOTty.puts("Connection reset")
+      :ok_cmd -> IOTty.puts("Command added")
+      {:ok_config, {key, value}} -> IOTty.puts("#{key} set to #{value}")
+      [list] -> Enum.each(list, &(IOTty.puts(inspect &1)))
+      _ -> :ok
+    end
     console(config)
   end
 
