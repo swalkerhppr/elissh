@@ -4,6 +4,8 @@ defmodule Elissh.FactRegistry do
   @doc "Start fact registry"
   def start_link(init_facts), do: GenServer.start_link(__MODULE__, Map.merge(%{global_facts: %{}}, init_facts), name: Facts)
 
+  def init(facts), do: {:ok, facts}
+
   @doc "Add a fact associated to a host"
   def put(host, {fact, value}), do: GenServer.call(Facts, {:put, host, fact, value})
   def put(host, map = %{}), do: GenServer.call(Facts, {:put, host, map})
@@ -45,7 +47,8 @@ defmodule Elissh.FactRegistry do
     end
   end
 
-  def handle_call({:get, host}, _from, map = %{global_facts: global_facts}), do: {:reply, Map.merge(global_facts, Map.get(map, host, %{})), map}
+  def handle_call({:get, host}, _from, map = %{global_facts: global_facts}) do
+    {:reply, Map.merge(global_facts, Map.get(map, host, %{})), map}
+  end
 
-  def init(facts), do: {:ok, facts}
 end

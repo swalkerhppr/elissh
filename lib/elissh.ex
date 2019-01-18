@@ -10,6 +10,8 @@ defmodule Elissh do
     children = [
       worker(Elissh.ConnectionRegistry, []),
       worker(Elissh.Console, []),
+      worker(Elissh.FactRegistry, [%{}]),
+      worker(Elissh.ConfigRegistry, [%{}]),
       worker(IOTty, [@io_config]),
     ]
 
@@ -31,6 +33,6 @@ defmodule Elissh do
   end
 
   def handle_call({_port, {:data, d}}, _from, state) do
-    IO.puts(d)
+    IOTty.puts(d)
   end
 end

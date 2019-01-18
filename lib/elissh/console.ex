@@ -27,7 +27,7 @@ defmodule Elissh.Console do
 
   def parse_console_command(command) do
     command 
-    |> String.split(" ") 
+    |> String.split(" ", parts: 2)
     |> List.to_tuple 
     |> case do
       {"run_on", spec}   -> {:spec, spec} 

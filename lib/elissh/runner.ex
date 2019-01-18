@@ -20,14 +20,14 @@ defmodule Elissh.Runner do
     case parsed do
       %{interactive: true} -> console(parsed, true)
       {_ , _}              -> push(parsed)
-      _                    -> IO.puts @moduledoc
+      _                    -> IOTty.puts @moduledoc
     end
   end
 
   def push({config = %DefaultConfig{}, spec}) do
     start_registries(config.config_file, config.facts_file)
-    Elissh.ConnectionRegistry.set_user({config.user, config.pass})
-    Elissh.CommandRunner.run_cmd({:spec, spec}, config.cmd, config.all) |> inspect |> IO.puts
+    Elissh.ConnectionRegistry.set_user({config.user, config.password})
+    Elissh.CommandRunner.run_cmd({:spec, spec}, config.cmd, config.all) |> inspect |> IOTty.puts
   end
 
   def console(config = %DefaultConfig{}, start \\ false) do

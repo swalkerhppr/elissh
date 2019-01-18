@@ -9,7 +9,7 @@ defmodule Elissh.ConfigRegistry do
 
   def init(:ok, config), do: {:ok, config}
 
-  def handle_call({:spec, name}, _from, map) do
+  def handle_call({:spec, name}, _from, {:ok, map}) do
     (
       map 
       |> Enum.map(fn {_, vals} -> {name, vals[name]} end)
