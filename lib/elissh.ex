@@ -11,7 +11,6 @@ defmodule Elissh do
       worker(Elissh.ConnectionRegistry, []),
       worker(Elissh.Console, []),
       worker(Elissh.FactRegistry, [%{}]),
-      worker(Elissh.ConfigRegistry, [%{}]),
       worker(IOTty, [@io_config]),
     ]
 
